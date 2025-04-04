@@ -1,0 +1,412 @@
+/* Add this at the top of your CSS file */
+.ayuda-container {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ffc0eb 0%, #ffdbf3 100%);
+  padding: 30px;
+  justify-content: space-around;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(255, 192, 235, 0.3);
+  margin: 0; /* Changed from 20px 0 to remove the top space */
+  transition: transform 0.3s ease;
+}
+
+.ayuda-container:hover {
+  transform: translateY(-5px);
+}
+
+.image-placeholder {
+  width: 320px;
+  height: 200px;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #666;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+}
+
+.image-placeholder:hover {
+  transform: scale(1.05);
+}
+
+.help-section {
+  text-align: center;
+}
+
+.help-section h2 {
+  color: #ff69b4;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  position: relative;
+  display: inline-block;
+}
+
+.help-section h2::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff69b4, transparent);
+  bottom: -8px;
+  left: 25%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.help-options {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.option:hover {
+  transform: translateY(-10px);
+}
+
+.option img {
+  width: 60px;
+  height: 60px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.option:hover img {
+  background-color: #ff69b4;
+  filter: brightness(0) invert(1);
+}
+
+.option p {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.option:hover p {
+  color: #ff69b4;
+}
+
+/* Diseño de tarjetas */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  padding: 30px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  border: none;
+  padding: 25px;
+  border-radius: 12px;
+  background-color: white;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #ff69b4, #ffc0eb);
+  z-index: -1;
+}
+
+.card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 15px 30px rgba(255, 105, 180, 0.2);
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #ff69b4;
+  position: relative;
+  display: inline-block;
+}
+
+.card p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.ayuda-image img {
+  width: 90%;
+  max-width: 320px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.5s ease;
+}
+
+.ayuda-image img:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.teddy-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(255, 105, 180, 0.8), transparent);
+  color: white;
+  padding: 15px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.ayuda-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.ayuda-image:hover .image-overlay {
+  transform: translateY(0);
+}
+
+.icon-container {
+  background-color: white;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.option:hover .icon-container {
+  background-color: #ff69b4;
+}
+
+.icon-container img {
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+/* Add or update these responsive styles */
+
+/* Base responsive container */
+.ayuda-page-wrapper {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Enhanced responsive styles */
+@media (max-width: 992px) {
+  .ayuda-container {
+    padding: 25px;
+  }
+  
+  .help-options {
+    gap: 15px;
+  }
+  
+  .option-button {
+    width: 120px;
+    padding: 12px;
+  }
+  
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ayuda-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .ayuda-image {
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .teddy-image {
+    width: 100%;
+  }
+  
+  .help-section h2 {
+    font-size: 1.8rem;
+  }
+  
+  .help-options {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    padding: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ayuda-container {
+    margin: 0 10px;
+    padding: 15px;
+  }
+  
+  .help-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .option-button {
+    width: 110px;
+    padding: 10px;
+  }
+  
+  .option-button img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .option-button p {
+    font-size: 12px;
+  }
+  
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+  
+  .card-icon {
+    font-size: 2rem;
+  }
+  
+  .card h3 {
+    font-size: 18px;
+  }
+  
+  .card p {
+    font-size: 14px;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 400px) {
+  .help-options {
+    gap: 10px;
+  }
+  
+  .option-button {
+    width: 100px;
+    padding: 8px;
+  }
+  
+  .option-button img {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* Estilos mejorados para los botones de opciones */
+.option-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 12px;
+  padding: 15px;
+  width: 130px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.option-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background-color: #fff5f9;
+}
+
+.option-button img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.option-button p {
+  font-weight: 600;
+  color: #ff69b4;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
+.help-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
