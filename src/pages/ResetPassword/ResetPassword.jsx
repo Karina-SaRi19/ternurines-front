@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Form, Input, Button, Card, Typography, Alert, Modal } from "antd";
 import { requestPasswordReset, resetPassword } from "../../services/authService";
@@ -21,6 +21,15 @@ const ResetPassword = () => {
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get("token");
   const emailFromURL = queryParams.get("email");
+
+  // Establecer el email desde la URL cuando el componente se monta
+  useEffect(() => {
+    if (emailFromURL) {
+      setEmail(emailFromURL);
+      console.log("Email from URL:", emailFromURL);
+      console.log("Token from URL:", token);
+    }
+  }, [emailFromURL, token]);
 
   const isResetMode = Boolean(token); // Verifica si el token está presente en la URL
 
