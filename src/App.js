@@ -1,11 +1,13 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import DashboardPage from './pages/Dashboard/DashboardPage';
 import LandingPage from './pages/LandingPage/LandingPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
 import PerfilPage from './pages/Perfil/PerfilPage';
 import CatalogoPage from './pages/Catalogo/CatalogoPage';
+import SSETestPage from './pages/SSETestPage/SSETestPage';
 import Components from "./Components/Components"; // Asegúrate de que la ruta sea correcta
 import AyudaPage from './pages/Ayuda/AyudaPage'; // Importa la página de ayuda si existe
 import RegistroPage from './pages/Registro/RegistroPage.jsx';

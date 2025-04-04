@@ -1,9 +1,11 @@
 // Service for handling real-time order updates using SSE
+import api from "./api";
 
 class OrderUpdateService {
   constructor() {
     this.eventSource = null;
     this.listeners = new Map();
+    this.baseURL = api.defaults.baseURL || "https://ternurines-back.onrender.com";
   }
 
   // Connect to the SSE endpoint
@@ -19,12 +21,8 @@ class OrderUpdateService {
     }
 
     try {
-      this.eventSource = new EventSource(`http://localhost:3000/order-updates`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        withCredentials: true
-      });
+      // Use the baseURL from API service instead of hardcoded URL
+      this.eventSource = new EventSource(`${this.baseURL}/order-updates?token=${token}`);
 
       this.eventSource.onmessage = (event) => {
         try {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, List, Button, Tag, Divider, Alert, Space } from 'antd';
 import { ClockCircleOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons';
+import { connectToSSE, disconnectFromSSE, simulateOrderUpdate } from '../../services/sseService';
 
 const { Title, Text } = Typography;
 
@@ -12,85 +13,48 @@ const SSETestPage = () => {
   useEffect(() => {
     // Clean up function to close the connection when component unmounts
     return () => {
-      if (window.eventSource) {
-        window.eventSource.close();
-        console.log('SSE connection closed');
-      }
+      disconnectFromSSE();
+      console.log('SSE connection closed');
     };
   }, []);
 
-  const connectToSSE = () => {
+  const handleConnectToSSE = () => {
     setError(null);
     
-    // Get token from localStorage
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError('No authentication token found. Please log in first.');
-      return;
-    }
-
     try {
-      // Close existing connection if any
-      if (window.eventSource) {
-        window.eventSource.close();
-      }
-
-      // Create a new EventSource with the token in the URL
-      window.eventSource = new EventSource(`http://localhost:3000/order-updates?token=${token}`);
-      
-      // Connection opened
-      window.eventSource.onopen = () => {
-        console.log('SSE connection opened');
-        setConnected(true);
-        addMessage({
-          type: 'system',
-          message: 'Connection established with server',
-          timestamp: new Date()
-        });
-      };
-      
-      // Message received
-      window.eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('SSE message received:', data);
-          
+      connectToSSE(
+        // onMessage callback
+        (data) => {
           addMessage({
             type: data.type || 'unknown',
             message: data.message || JSON.stringify(data),
             data: data,
             timestamp: new Date()
           });
-        } catch (err) {
-          console.error('Error parsing SSE message:', err);
+        },
+        // onOpen callback
+        () => {
+          setConnected(true);
           addMessage({
-            type: 'error',
-            message: `Error parsing message: ${event.data}`,
+            type: 'system',
+            message: 'Connection established with server',
             timestamp: new Date()
           });
+        },
+        // onError callback
+        (err) => {
+          setConnected(false);
+          setError('Connection error. The server might be down or you may not be authenticated.');
         }
-      };
-      
-      // Error handling
-      window.eventSource.onerror = (err) => {
-        console.error('SSE connection error:', err);
-        setConnected(false);
-        setError('Connection error. The server might be down or you may not be authenticated.');
-        
-        // Close the connection on error
-        window.eventSource.close();
-      };
-      
+      );
     } catch (err) {
       console.error('Failed to establish SSE connection:', err);
       setError(`Failed to establish connection: ${err.message}`);
     }
   };
 
-  const disconnectFromSSE = () => {
-    if (window.eventSource) {
-      window.eventSource.close();
-      window.eventSource = null;
+  const handleDisconnectFromSSE = () => {
+    if (disconnectFromSSE()) {
       setConnected(false);
       addMessage({
         type: 'system',
@@ -104,41 +68,15 @@ const SSETestPage = () => {
     setMessages((prevMessages) => [message, ...prevMessages]);
   };
 
-  const simulateOrderUpdate = async () => {
+  const handleSimulateOrderUpdate = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('No authentication token found. Please log in first.');
-        return;
-      }
-
-      // This is just a test - in a real app, you'd have a real order ID
-      const testOrderId = 'test-order-' + Math.floor(Math.random() * 1000);
+      const data = await simulateOrderUpdate();
       
-      // Simulate an order status update
-      const response = await fetch('http://localhost:3000/update-order-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          orderId: testOrderId,
-          newStatus: ['pendiente', 'procesando', 'enviado', 'entregado'][Math.floor(Math.random() * 4)]
-        })
+      addMessage({
+        type: 'system',
+        message: `Simulated order update sent: ${data.message}`,
+        timestamp: new Date()
       });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        addMessage({
-          type: 'system',
-          message: `Simulated order update sent: ${data.message}`,
-          timestamp: new Date()
-        });
-      } else {
-        setError(`Error: ${data.error || 'Unknown error'}`);
-      }
     } catch (err) {
       console.error('Error simulating order update:', err);
       setError(`Error simulating order update: ${err.message}`);
@@ -184,7 +122,7 @@ const SSETestPage = () => {
           <Space>
             <Button 
               type="primary" 
-              onClick={connectToSSE} 
+              onClick={handleConnectToSSE} 
               disabled={connected}
             >
               Connect to SSE
@@ -192,14 +130,14 @@ const SSETestPage = () => {
             
             <Button 
               danger 
-              onClick={disconnectFromSSE} 
+              onClick={handleDisconnectFromSSE} 
               disabled={!connected}
             >
               Disconnect
             </Button>
             
             <Button 
-              onClick={simulateOrderUpdate}
+              onClick={handleSimulateOrderUpdate}
             >
               Simulate Order Update
             </Button>
