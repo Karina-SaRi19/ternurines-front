@@ -27,20 +27,20 @@ const LoginPage = () => {
   useEffect(() => {
     // Check if we're coming from an authenticated page
     const referrer = document.referrer;
-    const isComingFromAuthPage = referrer.includes('/catalogo') ||
-      referrer.includes('/perfil') ||
-      referrer.includes('/carrito') ||
-      referrer.includes('/favoritos');
-
+    const isComingFromAuthPage = referrer.includes('/catalogo') || 
+                                referrer.includes('/perfil') || 
+                                referrer.includes('/carrito') || 
+                                referrer.includes('/favoritos');
+    
     if (location.pathname === "/login" || location.pathname === "/") {
       // Clear form fields
       form.resetFields();
-
+      
       // Reset login state
       setLoginStep(1);
       setMfaCode("");
       setTempUserData(null);
-
+      
       // If coming from an authenticated page, clear session
       if (isComingFromAuthPage) {
         localStorage.removeItem("token");
@@ -55,20 +55,14 @@ const LoginPage = () => {
   useEffect(() => {
     // Verificar si el usuario ya está autenticado
     const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("userRole");
 
-    // Si ya tiene un token y está en la página de login, redirigir según su rol
+    // Si ya tiene un token y está en la página de login, redirigir al catálogo
     if (token && (location.pathname === "/" || location.pathname === "/login")) {
-    // Redirigir según el rol del usuario
-    if (userRole === "2") { // Rol 2 = Admin
-    navigate("/sse-test");
-    } else {
-    navigate("/catalogo"); // Rol 1 = Usuario normal
-    }
-    }
-    // Si no está autenticado y intenta acceder a páginas protegidas, redirigirlo a login
-    else if (!token && (location.pathname === "/catalogo" || location.pathname === "/sse-test")) {
-    navigate("/login");
+      navigate("/catalogo");
+    } 
+    // Si no está autenticado y intenta acceder al catálogo, redirigirlo a login
+    else if (!token && location.pathname === "/catalogo") {
+      navigate("/login"); // Redirige al login si intenta acceder sin autenticación
     }
   }, [navigate, location]);
 
@@ -78,7 +72,7 @@ const LoginPage = () => {
     const checkAuth = () => {
       const token = localStorage.getItem("token");
       const protectedRoutes = ["/catalogo", "/carrito", "/favoritos", "/perfil"];
-
+      
       if (!token && protectedRoutes.some(route => window.location.pathname.includes(route))) {
         navigate("/login");
         message.warning("Debes iniciar sesión para acceder a esta página");
@@ -120,16 +114,16 @@ const LoginPage = () => {
     try {
       // Primer paso: autenticación con usuario y contraseña
       const response = await loginUser(values.username, values.password);
-
+      
       // Guardar temporalmente los datos del usuario
       setTempUserData(response);
-
+      
       // Enviar código MFA al correo del usuario usando el nuevo servicio
       await sendMfaCode(response.userId, response.user.email);
-
+      
       message.success("Se ha enviado un código de verificación a tu correo electrónico");
       setLoginStep(2); // Avanzar al paso de verificación MFA
-
+      
     } catch (error) {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
@@ -339,7 +333,7 @@ const LoginPage = () => {
               Hemos enviado un código de verificación a tu correo electrónico.
               Por favor, ingrésalo a continuación:
             </p>
-
+            
             <Input
               prefix={<SafetyOutlined style={{ color: "#9C2780" }} />}
               placeholder="Código de verificación"
@@ -355,48 +349,48 @@ const LoginPage = () => {
                 marginBottom: "20px",
               }}
             />
-
-            <Button
-              onClick={handleVerifyMFA}
-              block
-              style={{
-                backgroundColor: "#FBE59D",
-                borderColor: "#9C2780",
-                color: "black",
-                height: 40,
-                fontSize: "16px",
-                borderRadius: 20,
-                fontWeight: "bold",
-                marginBottom: "15px",
-              }}
-            >
-              Verificar
-            </Button>
-
-            <Button
-              onClick={handleResendCode}
-              type="link"
-              style={{
-                color: "#9C2780",
-                fontSize: "14px",
-              }}
-            >
-              Reenviar código
-            </Button>
-
-            <Button
-              onClick={() => setLoginStep(1)}
-              type="link"
-              style={{
-                color: "#9C2780",
-                fontSize: "14px",
-                marginLeft: "10px",
-              }}
-            >
-              Volver
-            </Button>
-          </div>
-        )}
+                          
+              <Button
+                onClick={handleVerifyMFA}
+                block
+                style={{
+                  backgroundColor: "#FBE59D",
+                  borderColor: "#9C2780",
+                  color: "black",
+                  height: 40,
+                  fontSize: "16px",
+                  borderRadius: 20,
+                  fontWeight: "bold",
+                  marginBottom: "15px",
+                }}
+              >
+                Verificar
+              </Button>
+              
+              <Button
+                onClick={handleResendCode}
+                type="link"
+                style={{
+                  color: "#9C2780",
+                  fontSize: "14px",
+                }}
+              >
+                Reenviar código
+              </Button>
+              
+              <Button
+                onClick={() => setLoginStep(1)}
+                type="link"
+                style={{
+                  color: "#9C2780",
+                  fontSize: "14px",
+                  marginLeft: "10px",
+                }}
+              >
+                Volver
+              </Button>
+            </div>
+          )}
       </Card>
     </div>
   );
