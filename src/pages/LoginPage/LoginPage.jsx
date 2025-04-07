@@ -58,7 +58,7 @@ const LoginPage = () => {
     const userRole = localStorage.getItem("userRole");
 
     // Si ya tiene un token y está en la página de login, redirigir según su rol
-    if (token && (location.pathname === "/" || location.pathname === "/login")) {
+    if (token && (location.pathname === "/login")) {
     // Redirigir según el rol del usuario
     if (userRole === "2") { // Rol 2 = Admin
     navigate("/sse-test");
