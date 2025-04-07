@@ -7,7 +7,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
 import PerfilPage from './pages/Perfil/PerfilPage';
 import CatalogoPage from './pages/Catalogo/CatalogoPage';
-import SSETestPage from './pages/SSETestPage/SSETestPage';
 import Components from "./Components/Components"; // Asegúrate de que la ruta sea correcta
 import AyudaPage from './pages/Ayuda/AyudaPage'; // Importa la página de ayuda si existe
 import RegistroPage from './pages/Registro/RegistroPage.jsx';
@@ -15,7 +14,6 @@ import ResetPassword from './pages/ResetPassword/ResetPassword.jsx';
 import CarritoPage from './pages/Carrito/CarritoPage.jsx';
 import CompraExitosa from './pages/CompraExitosa/CompraExitosa.jsx';
 import FavoritosPage from './pages/Favoritos/FavoritosPage.jsx';
-import SSETestPage from './pages/SSETestPage/SSETestPage.jsx';
 
 const App = () => {
   return (
@@ -33,7 +31,6 @@ const App = () => {
         <Route path="/carrito" element={<CarritoPage />} />
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
         <Route path="/favoritos" element={<FavoritosPage />} />
-        <Route path="/sse-test" element={<SSETestPage />} />
         <Route
           path="/dashboard"
           element={
