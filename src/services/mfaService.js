@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://ternurines-back.onrender.com";
 
 // Function to request an MFA code be sent to the user's email
 export const sendMfaCode = async (userId, email) => {
