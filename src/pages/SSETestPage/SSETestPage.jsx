@@ -98,6 +98,10 @@ const SSETestPage = () => {
         return <ShoppingCartOutlined style={{ color: 'blue' }} />;
       case 'cart_add':
         return <ShoppingCartOutlined style={{ color: 'orange' }} />;
+      case 'cart_remove':
+        return <ShoppingCartOutlined style={{ color: 'red' }} />;
+      case 'cart_clear':
+        return <ShoppingCartOutlined style={{ color: 'gray' }} />;
       case 'favorite_add':
         return <HeartOutlined style={{ color: 'pink' }} />;
       case 'favorite_remove':
@@ -165,6 +169,8 @@ const SSETestPage = () => {
                           item.type === 'logout' ? 'red' :
                           item.type === 'purchase' ? 'blue' :
                           item.type === 'cart_add' ? 'orange' :
+                          item.type === 'cart_remove' ? 'red' :
+                          item.type === 'cart_clear' ? 'default' :
                           item.type === 'favorite_add' ? 'pink' :
                           item.type === 'favorite_remove' ? 'default' :
                           item.type === 'profile_edit' ? 'purple' :
@@ -174,6 +180,8 @@ const SSETestPage = () => {
                            item.type === 'logout' ? 'Cierre de sesión' :
                            item.type === 'purchase' ? 'Compra' :
                            item.type === 'cart_add' ? 'Añadido al carrito' :
+                           item.type === 'cart_remove' ? 'Eliminado del carrito' :
+                           item.type === 'cart_clear' ? 'Carrito vaciado' :
                            item.type === 'favorite_add' ? 'Añadido a favoritos' :
                            item.type === 'favorite_remove' ? 'Eliminado de favoritos' :
                            item.type === 'profile_edit' ? 'Edición de perfil' :
