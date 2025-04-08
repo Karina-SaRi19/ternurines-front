@@ -59,4 +59,40 @@ const disconnectFromSSE = () => {
   }
 };
 
-export { connectToSSE, disconnectFromSSE };
+// Add the logActivity function to log user activities
+const logActivity = async (type, message, details = {}) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token found for logging activity');
+      return null;
+    }
+
+    // Call the backend API to log the activity
+    const response = await fetch(`${process.env.REACT_APP_API_URL || ''}/log-activity`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        type,
+        message,
+        details
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to log activity: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Activity logged successfully:', data);
+    return data.activity;
+  } catch (error) {
+    console.error('Error logging activity:', error);
+    return null;
+  }
+};
+
+export { connectToSSE, disconnectFromSSE, logActivity };
