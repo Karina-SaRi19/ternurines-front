@@ -115,6 +115,132 @@ const SSETestPage = () => {
     }
   };
 
+  // Function to render detailed activity information
+  const renderActivityDetails = (item) => {
+    switch (item.type) {
+      case 'purchase':
+        return (
+          <div>
+            {item.data.orderId && (
+              <>
+                <Text strong>ID de Orden: </Text>
+                <Text>{item.data.orderId}</Text>
+                <br />
+              </>
+            )}
+            {item.data.total && (
+              <>
+                <Text strong>Total: </Text>
+                <Text>${parseFloat(item.data.total).toFixed(2)}</Text>
+                <br />
+              </>
+            )}
+            {item.data.items && item.data.items.length > 0 && (
+              <>
+                <Text strong>Productos: </Text>
+                <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                  {item.data.items.map((product, index) => (
+                    <li key={index}>
+                      {product.nombre} x {product.cantidad} - ${parseFloat(product.precio * product.cantidad).toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        );
+      
+      case 'cart_add':
+      case 'cart_remove':
+        return (
+          <div>
+            {item.data.productName && (
+              <>
+                <Text strong>Producto: </Text>
+                <Text>{item.data.productName}</Text>
+                <br />
+              </>
+            )}
+            {item.data.productType && (
+              <>
+                <Text strong>Tipo: </Text>
+                <Text>{item.data.productType}</Text>
+                <br />
+              </>
+            )}
+            {item.data.productId && (
+              <>
+                <Text strong>ID: </Text>
+                <Text>{item.data.productId}</Text>
+              </>
+            )}
+          </div>
+        );
+      
+      case 'favorite_add':
+      case 'favorite_remove':
+        return (
+          <div>
+            {item.data.productName && (
+              <>
+                <Text strong>Producto: </Text>
+                <Text>{item.data.productName}</Text>
+                <br />
+              </>
+            )}
+            {item.data.productId && (
+              <>
+                <Text strong>ID: </Text>
+                <Text>{item.data.productId}</Text>
+              </>
+            )}
+          </div>
+        );
+      
+      case 'order_updated':
+        return (
+          <div>
+            {item.data.orderId && (
+              <>
+                <Text strong>ID de Orden: </Text>
+                <Text>{item.data.orderId}</Text>
+                <br />
+              </>
+            )}
+            {item.data.status && (
+              <>
+                <Text strong>Estado: </Text>
+                <Tag color={
+                  item.data.status === 'pendiente' ? 'orange' :
+                  item.data.status === 'procesando' ? 'blue' :
+                  item.data.status === 'enviado' ? 'cyan' :
+                  item.data.status === 'entregado' ? 'green' : 'default'
+                }>
+                  {item.data.status}
+                </Tag>
+              </>
+            )}
+          </div>
+        );
+      
+      default:
+        // For other activity types, just show any available data
+        return Object.keys(item.data || {})
+          .filter(key => 
+            key !== 'type' && 
+            key !== 'message' && 
+            key !== 'timestamp' && 
+            typeof item.data[key] !== 'object'
+          )
+          .map(key => (
+            <div key={key}>
+              <Text strong>{key.charAt(0).toUpperCase() + key.slice(1)}: </Text>
+              <Text>{item.data[key]}</Text>
+            </div>
+          ));
+    }
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Content style={{ padding: '20px' }}>
@@ -194,39 +320,7 @@ const SSETestPage = () => {
                     }
                     description={item.message}
                   />
-                  {item.data && item.data.orderId && (
-                    <div>
-                      <Text strong>ID de Orden: </Text>
-                      <Text>{item.data.orderId}</Text>
-                      {item.data.status && (
-                        <>
-                          <br />
-                          <Text strong>Estado: </Text>
-                          <Tag color={
-                            item.data.status === 'pendiente' ? 'orange' :
-                            item.data.status === 'procesando' ? 'blue' :
-                            item.data.status === 'enviado' ? 'cyan' :
-                            item.data.status === 'entregado' ? 'green' : 'default'
-                          }>
-                            {item.data.status}
-                          </Tag>
-                        </>
-                      )}
-                      {item.data.total && (
-                        <>
-                          <br />
-                          <Text strong>Total: </Text>
-                          <Text>${item.data.total}</Text>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  {item.data && item.data.productName && (
-                    <div>
-                      <Text strong>Producto: </Text>
-                      <Text>{item.data.productName}</Text>
-                    </div>
-                  )}
+                  {renderActivityDetails(item)}
                 </List.Item>
               )}
             />
