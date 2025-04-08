@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Table, Button, Input, Spin, message, Modal } from "antd";
-import { UserOutlined, OrderedListOutlined, GiftOutlined, QuestionCircleOutlined, LogoutOutlined, EditOutlined, SaveOutlined } from "@ant-design/icons";
+import { UserOutlined, OrderedListOutlined, GiftOutlined, QuestionCircleOutlined, LogoutOutlined, EditOutlined, SaveOutlined, BellOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Components from "../Components/Components";
 import LogoTernurin from "../../images/LogoTernurin.png";
@@ -134,15 +134,15 @@ const PerfilPage = () => {
                     <div
                       onClick={record.onClick}
                       style={{
-                        cursor: record.onClick ? "pointer" : "default", // Mantener el cursor como puntero cuando haya acción
+                        cursor: record.onClick ? "pointer" : "default",
                         display: "flex",
-                        alignItems: "center", // Asegura que el ícono y el texto estén alineados
-                        padding: "5px", // Espaciado alrededor de la opción
-                        backgroundColor: "inherit", // Mantener el fondo transparente o el color original
-                        borderRadius: "4px", // Bordes redondeados para mayor estilo
+                        alignItems: "center",
+                        padding: "5px",
+                        backgroundColor: "inherit",
+                        borderRadius: "4px",
                       }}
                     >
-                      <span style={{ marginLeft: "-20px" }}>{text}</span> {/* El texto al lado del ícono */}
+                      <span style={{ marginLeft: "-20px" }}>{text}</span>
                     </div>
                   ),
                 },
@@ -151,9 +151,9 @@ const PerfilPage = () => {
                 { key: "1", icon: <UserOutlined />, title: "Descripción general de la cuenta", onClick: () => navigate("/perfil") },
                 { key: "2", icon: <OrderedListOutlined />, title: "Mis pedidos", onClick: () => navigate("/carrito") },
                 { key: "3", icon: <GiftOutlined />, title: "Lista de deseos", onClick: () => navigate("/favoritos") },
-                { key: "4", icon: <QuestionCircleOutlined />, title: "Soporte y ayuda", onClick: () => navigate("/ayuda") }, // Navegar a "ayuda"
+                { key: "4", icon: <QuestionCircleOutlined />, title: "Soporte y ayuda", onClick: () => navigate("/ayuda") },
                 { key: "5", icon: <BellOutlined />, title: "Notificaciones (SSE Test)", onClick: () => navigate("/sse-test") },
-                { key: "5", icon: <LogoutOutlined />, title: "Cerrar sesión", onClick: handleLogout },
+                { key: "6", icon: <LogoutOutlined />, title: "Cerrar sesión", onClick: handleLogout },
               ]}
               pagination={false}
               showHeader={false}
