@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, List, Button, Tag, Divider, Alert, Space, Layout, Spin } from 'antd';
+import { Card, Typography, List, Button, Tag, Divider, Alert, Space, Layout, Spin, notification } from 'antd';
 import { ClockCircleOutlined, ShoppingCartOutlined, HeartOutlined, UserOutlined, LogoutOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { connectToSSE, disconnectFromSSE } from '../../services/sseService';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ const SSETestPage = () => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     // Load historical activities and connect to SSE
@@ -56,25 +57,42 @@ const SSETestPage = () => {
       connectToSSE(
         // onMessage callback
         (data) => {
-          addMessage({
+          console.log('New activity received:', data);
+          
+          // Format the activity data for display
+          const newActivity = {
             type: data.type || 'unknown',
-            message: data.message || JSON.stringify(data),
+            message: data.message || '',
             data: data,
             timestamp: new Date()
+          };
+          
+          // Add the new activity to the list
+          addMessage(newActivity);
+          
+          // Show notification for new activity
+          notification.info({
+            message: 'Nueva actividad detectada',
+            description: newActivity.message || `Actividad de tipo: ${newActivity.type}`,
+            placement: 'topRight'
           });
         },
         // onOpen callback
         () => {
           console.log('SSE connection established');
+          setIsConnected(true);
+          setError(null);
         },
         // onError callback
         (err) => {
           console.error('SSE connection error:', err);
+          setIsConnected(false);
           setError('No se pudo establecer conexión con el servidor de actividad. Algunas actualizaciones podrían no mostrarse en tiempo real.');
         }
       );
     } catch (err) {
       console.error('Failed to initialize SSE connection:', err);
+      setIsConnected(false);
       setError('Error al inicializar la conexión de actividad en tiempo real.');
     }
   };
@@ -114,6 +132,7 @@ const SSETestPage = () => {
         return <ClockCircleOutlined />;
     }
   };
+
 
   // Function to render detailed activity information
   const renderActivityDetails = (item) => {
@@ -246,7 +265,7 @@ const SSETestPage = () => {
       <Content style={{ padding: '20px' }}>
         <Card>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <Title level={2}>Registro de Actividad del Usuario</Title>
+            <Title level={2}>Monitoreo de Actividad en Tiempo Real</Title>
             <Button 
               type="primary" 
               icon={<ArrowLeftOutlined />} 
@@ -256,9 +275,24 @@ const SSETestPage = () => {
             </Button>
           </div>
           
-          <Text>Esta página muestra un registro de tu actividad reciente en la plataforma en tiempo real.</Text>
+          <Text>Esta página muestra un monitoreo en tiempo real de la actividad del usuario en la plataforma.</Text>
           
           <Divider />
+          
+          <div style={{ marginBottom: '20px' }}>
+            <Tag color={isConnected ? 'green' : 'red'} style={{ padding: '5px 10px' }}>
+              {isConnected ? 'Conectado' : 'Desconectado'}
+            </Tag>
+            <Button 
+              type="primary" 
+              size="small" 
+              onClick={initializeSSEConnection} 
+              style={{ marginLeft: '10px' }}
+              disabled={isConnected}
+            >
+              Reconectar
+            </Button>
+          </div>
           
           {error && (
             <Alert
@@ -272,7 +306,7 @@ const SSETestPage = () => {
             />
           )}
           
-          <Title level={4}>Historial de Actividad</Title>
+          <Title level={4}>Actividad Reciente</Title>
           
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
