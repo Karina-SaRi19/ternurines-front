@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, List, Button, Tag, Divider, Alert, Space } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, SyncOutlined, ArrowLeftOutlined, ShoppingCartOutlined, HeartOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
-import { connectToSSE, disconnectFromSSE, simulateOrderUpdate } from '../../services/sseService';
+import { Card, Typography, List, Button, Tag, Divider, Alert, Space, Layout, Spin } from 'antd';
+import { ClockCircleOutlined, ShoppingCartOutlined, HeartOutlined, UserOutlined, LogoutOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { connectToSSE, disconnectFromSSE } from '../../services/sseService';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const { Title, Text } = Typography;
+const { Content } = Layout;
 
 const SSETestPage = () => {
   const navigate = useNavigate();
-  const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Load historical activities and connect to SSE
+    loadUserActivities();
+    initializeSSEConnection();
+    
     // Clean up function to close the connection when component unmounts
     return () => {
       disconnectFromSSE();
@@ -20,53 +26,33 @@ const SSETestPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    // Load initial activity logs when component mounts
-    loadInitialActivityLogs();
-  }, []);
-
-  const loadInitialActivityLogs = () => {
-    // Simulated activity logs - in a real app, these would come from your backend
-    const activityLogs = [
-      {
-        type: 'login',
-        message: 'Usuario inició sesión',
-        timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-        data: {}
-      },
-      {
-        type: 'cart_add',
-        message: 'Producto "Peluche Oso Panda" añadido al carrito',
-        timestamp: new Date(Date.now() - 2700000), // 45 minutes ago
-        data: { productId: '12345', productName: 'Peluche Oso Panda' }
-      },
-      {
-        type: 'favorite_add',
-        message: 'Producto "Peluche Unicornio" añadido a favoritos',
-        timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-        data: { productId: '67890', productName: 'Peluche Unicornio' }
-      },
-      {
-        type: 'profile_edit',
-        message: 'Información de perfil actualizada',
-        timestamp: new Date(Date.now() - 900000), // 15 minutes ago
-        data: {}
-      },
-      {
-        type: 'purchase',
-        message: 'Compra realizada exitosamente',
-        timestamp: new Date(Date.now() - 600000), // 10 minutes ago
-        data: { orderId: 'ORD-2023-001', total: '$1,250.00' }
+  const loadUserActivities = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/user-activities');
+      
+      if (response.data && response.data.activities) {
+        // Format activities for display
+        const formattedActivities = response.data.activities.map(activity => ({
+          type: activity.type,
+          message: activity.message || '',
+          data: activity,
+          timestamp: new Date(activity.timestamp)
+        }));
+        
+        setMessages(formattedActivities);
       }
-    ];
-
-    setMessages(activityLogs);
+    } catch (error) {
+      console.error('Error loading user activities:', error);
+      setError('No se pudieron cargar las actividades recientes. Por favor, intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleConnectToSSE = () => {
-    setError(null);
-    
+  const initializeSSEConnection = () => {
     try {
+      // Connect to SSE for real-time updates
       connectToSSE(
         // onMessage callback
         (data) => {
@@ -79,54 +65,22 @@ const SSETestPage = () => {
         },
         // onOpen callback
         () => {
-          setConnected(true);
-          addMessage({
-            type: 'system',
-            message: 'Conexión establecida con el servidor',
-            timestamp: new Date()
-          });
+          console.log('SSE connection established');
         },
         // onError callback
         (err) => {
-          setConnected(false);
-          setError('Error de conexión. El servidor podría estar caído o no estás autenticado.');
+          console.error('SSE connection error:', err);
+          setError('No se pudo establecer conexión con el servidor de actividad. Algunas actualizaciones podrían no mostrarse en tiempo real.');
         }
       );
     } catch (err) {
-      console.error('Failed to establish SSE connection:', err);
-      setError(`Error al establecer conexión: ${err.message}`);
-    }
-  };
-
-  const handleDisconnectFromSSE = () => {
-    if (disconnectFromSSE()) {
-      setConnected(false);
-      addMessage({
-        type: 'system',
-        message: 'Desconectado del servidor',
-        timestamp: new Date()
-      });
+      console.error('Failed to initialize SSE connection:', err);
+      setError('Error al inicializar la conexión de actividad en tiempo real.');
     }
   };
 
   const addMessage = (message) => {
     setMessages((prevMessages) => [message, ...prevMessages]);
-  };
-
-  const handleSimulateOrderUpdate = async () => {
-    try {
-      const data = await simulateOrderUpdate();
-      
-      addMessage({
-        type: 'purchase',
-        message: `Nueva compra realizada: ${data.message}`,
-        timestamp: new Date(),
-        data: { orderId: `ORD-${Math.floor(Math.random() * 10000)}`, status: 'procesando' }
-      });
-    } catch (err) {
-      console.error('Error simulating order update:', err);
-      setError(`Error al simular actualización de orden: ${err.message}`);
-    }
   };
 
   const handleReturnToHelp = () => {
@@ -146,6 +100,8 @@ const SSETestPage = () => {
         return <ShoppingCartOutlined style={{ color: 'orange' }} />;
       case 'favorite_add':
         return <HeartOutlined style={{ color: 'pink' }} />;
+      case 'favorite_remove':
+        return <HeartOutlined style={{ color: 'gray' }} />;
       case 'profile_edit':
         return <UserOutlined style={{ color: 'purple' }} />;
       case 'system':
@@ -156,141 +112,120 @@ const SSETestPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <Card>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <Title level={2}>Registro de Actividad del Usuario</Title>
-          <Button 
-            type="primary" 
-            icon={<ArrowLeftOutlined />} 
-            onClick={handleReturnToHelp}
-          >
-            Regresar a Ayuda
-          </Button>
-        </div>
-        
-        <Text>Esta página muestra un registro de tu actividad reciente en la plataforma.</Text>
-        
-        <Divider />
-        
-        <Space direction="vertical" style={{ width: '100%' }}>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Content style={{ padding: '20px' }}>
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <Title level={2}>Registro de Actividad del Usuario</Title>
+            <Button 
+              type="primary" 
+              icon={<ArrowLeftOutlined />} 
+              onClick={handleReturnToHelp}
+            >
+              Regresar a Ayuda
+            </Button>
+          </div>
+          
+          <Text>Esta página muestra un registro de tu actividad reciente en la plataforma en tiempo real.</Text>
+          
+          <Divider />
+          
           {error && (
             <Alert
-              message="Error"
+              message="Aviso"
               description={error}
-              type="error"
+              type="warning"
               showIcon
               closable
               onClose={() => setError(null)}
+              style={{ marginBottom: '20px' }}
             />
           )}
           
-          <Space>
-            <Button 
-              type="primary" 
-              onClick={handleConnectToSSE} 
-              disabled={connected}
-            >
-              Conectar a notificaciones en tiempo real
-            </Button>
-            
-            <Button 
-              danger 
-              onClick={handleDisconnectFromSSE} 
-              disabled={!connected}
-            >
-              Desconectar
-            </Button>
-            
-            <Button 
-              onClick={handleSimulateOrderUpdate}
-            >
-              Simular nueva actividad
-            </Button>
-          </Space>
+          <Title level={4}>Historial de Actividad</Title>
           
-          <div style={{ marginTop: '10px' }}>
-            Estado de notificaciones: {connected ? 
-              <Tag color="green">Conectado</Tag> : 
-              <Tag color="red">Desconectado</Tag>
-            }
-          </div>
-        </Space>
-        
-        <Divider />
-        
-        <Title level={4}>Historial de Actividad</Title>
-        <List
-          bordered
-          dataSource={messages}
-          renderItem={(item) => (
-            <List.Item>
-              <List.Item.Meta
-                avatar={getActivityIcon(item.type)}
-                title={
-                  <span>
-                    <Tag color={
-                      item.type === 'login' ? 'green' : 
-                      item.type === 'logout' ? 'red' :
-                      item.type === 'purchase' ? 'blue' :
-                      item.type === 'cart_add' ? 'orange' :
-                      item.type === 'favorite_add' ? 'pink' :
-                      item.type === 'profile_edit' ? 'purple' :
-                      item.type === 'system' ? 'default' : 'cyan'
-                    }>
-                      {item.type === 'login' ? 'Inicio de sesión' :
-                       item.type === 'logout' ? 'Cierre de sesión' :
-                       item.type === 'purchase' ? 'Compra' :
-                       item.type === 'cart_add' ? 'Añadido al carrito' :
-                       item.type === 'favorite_add' ? 'Añadido a favoritos' :
-                       item.type === 'profile_edit' ? 'Edición de perfil' :
-                       item.type === 'system' ? 'Sistema' : item.type}
-                    </Tag>
-                    <Text type="secondary" style={{ marginLeft: '10px' }}>
-                      {item.timestamp.toLocaleString()}
-                    </Text>
-                  </span>
-                }
-                description={item.message}
-              />
-              {item.data && item.data.orderId && (
-                <div>
-                  <Text strong>ID de Orden: </Text>
-                  <Text>{item.data.orderId}</Text>
-                  {item.data.status && (
-                    <>
-                      <br />
-                      <Text strong>Estado: </Text>
-                      <Tag color={
-                        item.data.status === 'pendiente' ? 'orange' :
-                        item.data.status === 'procesando' ? 'blue' :
-                        item.data.status === 'enviado' ? 'cyan' :
-                        item.data.status === 'entregado' ? 'green' : 'default'
-                      }>
-                        {item.data.status}
-                      </Tag>
-                    </>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <Spin size="large" />
+              <p style={{ marginTop: '16px' }}>Cargando actividades...</p>
+            </div>
+          ) : (
+            <List
+              bordered
+              dataSource={messages}
+              locale={{ emptyText: 'No hay actividades registradas' }}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={getActivityIcon(item.type)}
+                    title={
+                      <span>
+                        <Tag color={
+                          item.type === 'login' ? 'green' : 
+                          item.type === 'logout' ? 'red' :
+                          item.type === 'purchase' ? 'blue' :
+                          item.type === 'cart_add' ? 'orange' :
+                          item.type === 'favorite_add' ? 'pink' :
+                          item.type === 'favorite_remove' ? 'default' :
+                          item.type === 'profile_edit' ? 'purple' :
+                          item.type === 'system' ? 'default' : 'cyan'
+                        }>
+                          {item.type === 'login' ? 'Inicio de sesión' :
+                           item.type === 'logout' ? 'Cierre de sesión' :
+                           item.type === 'purchase' ? 'Compra' :
+                           item.type === 'cart_add' ? 'Añadido al carrito' :
+                           item.type === 'favorite_add' ? 'Añadido a favoritos' :
+                           item.type === 'favorite_remove' ? 'Eliminado de favoritos' :
+                           item.type === 'profile_edit' ? 'Edición de perfil' :
+                           item.type === 'system' ? 'Sistema' : item.type}
+                        </Tag>
+                        <Text type="secondary" style={{ marginLeft: '10px' }}>
+                          {item.timestamp.toLocaleString()}
+                        </Text>
+                      </span>
+                    }
+                    description={item.message}
+                  />
+                  {item.data && item.data.orderId && (
+                    <div>
+                      <Text strong>ID de Orden: </Text>
+                      <Text>{item.data.orderId}</Text>
+                      {item.data.status && (
+                        <>
+                          <br />
+                          <Text strong>Estado: </Text>
+                          <Tag color={
+                            item.data.status === 'pendiente' ? 'orange' :
+                            item.data.status === 'procesando' ? 'blue' :
+                            item.data.status === 'enviado' ? 'cyan' :
+                            item.data.status === 'entregado' ? 'green' : 'default'
+                          }>
+                            {item.data.status}
+                          </Tag>
+                        </>
+                      )}
+                      {item.data.total && (
+                        <>
+                          <br />
+                          <Text strong>Total: </Text>
+                          <Text>${item.data.total}</Text>
+                        </>
+                      )}
+                    </div>
                   )}
-                  {item.data.total && (
-                    <>
-                      <br />
-                      <Text strong>Total: </Text>
-                      <Text>{item.data.total}</Text>
-                    </>
+                  {item.data && item.data.productName && (
+                    <div>
+                      <Text strong>Producto: </Text>
+                      <Text>{item.data.productName}</Text>
+                    </div>
                   )}
-                </div>
+                </List.Item>
               )}
-              {item.data && item.data.productName && (
-                <div>
-                  <Text strong>Producto: </Text>
-                  <Text>{item.data.productName}</Text>
-                </div>
-              )}
-            </List.Item>
+            />
           )}
-        />
-      </Card>
-    </div>
+        </Card>
+      </Content>
+    </Layout>
   );
 };
 

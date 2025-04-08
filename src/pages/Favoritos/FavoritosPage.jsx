@@ -4,6 +4,7 @@ import Components from "../Components/Components";
 import imagePaths from "../Catalogo/imagesPaths";
 import styles from "./FavoritosStyles";
 import { useCart } from "../../context/CartContext";
+import { logActivity } from "../../services/sseService";
 
 const FavoritosPage = () => {
   const navigate = useNavigate();
@@ -41,6 +42,15 @@ const FavoritosPage = () => {
       
       // Guardar en localStorage
       localStorage.setItem("favoritos", JSON.stringify(nuevoEstado));
+      
+      // Log activity
+      const [tipo, id] = key.split('-');
+      logActivity('favorite_remove', {
+        message: `Producto "${nombre}" eliminado de favoritos`,
+        productId: id,
+        productName: nombre,
+        productType: tipo
+      });
       
       // Mostrar notificación
       setNotificacion({

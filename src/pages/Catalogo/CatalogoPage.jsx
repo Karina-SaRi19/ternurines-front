@@ -4,6 +4,7 @@ import imagePaths from "../Catalogo/imagesPaths"; // Importa las rutas de las im
 import styles from "./CatalogoStyles";
 import { useCart } from "../../context/CartContext";
 import api from "../../services/api"; // Importamos el servicio API con interceptor
+import { logActivity } from "../../services/sseService";
 
 const CatalogoPage = () => {
   const { addToCart } = useCart();
