@@ -152,6 +152,7 @@ const PerfilPage = () => {
                 { key: "2", icon: <OrderedListOutlined />, title: "Mis pedidos", onClick: () => navigate("/carrito") },
                 { key: "3", icon: <GiftOutlined />, title: "Lista de deseos", onClick: () => navigate("/favoritos") },
                 { key: "4", icon: <QuestionCircleOutlined />, title: "Soporte y ayuda", onClick: () => navigate("/ayuda") }, // Navegar a "ayuda"
+                { key: "5", icon: <BellOutlined />, title: "Notificaciones (SSE Test)", onClick: () => navigate("/sse-test") },
                 { key: "5", icon: <LogoutOutlined />, title: "Cerrar sesión", onClick: handleLogout },
               ]}
               pagination={false}
