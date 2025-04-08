@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Typography, List, Button, Tag, Divider, Alert, Space } from 'antd';
 import { ClockCircleOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons';
 import { connectToSSE, disconnectFromSSE, simulateOrderUpdate } from '../../services/sseService';
-
+import Components from "../Components/Components";
 const { Title, Text } = Typography;
 
 const SSETestPage = () => {
@@ -101,6 +101,7 @@ const SSETestPage = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+            <Components />
       <Card>
         <Title level={2}>SSE Test Page</Title>
         <Text>This page helps you test the Server-Sent Events (SSE) implementation.</Text>
